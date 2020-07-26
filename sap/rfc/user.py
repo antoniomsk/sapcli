@@ -207,7 +207,7 @@ class UserProfileAssignmentBuilder:
     def add_profiles(self, profile_names: List[str]):
         """Set assigned profiles name"""
 
-        self._profiles = profiles
+        self._profiles = profile_names
         return self
 
     def build_rfc_params(self) -> RFCParams:

@@ -5,8 +5,8 @@ import datetime
 import unittest
 from unittest.mock import Mock
 
-from sap.rfc.user import add_to_dict_if_not_none, add_to_dict_if_not_present, UserBuilder, \
-         UserRoleAssignmentBuilder, today_sap_date
+from sap.rfc.user import add_to_dict_if_not_none, add_to_dict_if_not_present, today_sap_date, \
+         UserBuilder, UserRoleAssignmentBuilder, UserProfileAssignmentBuilder
 
 
 class SAPRFCUserAux(unittest.TestCase):
@@ -103,7 +103,7 @@ class TestUserBuilder(unittest.TestCase):
         })
 
 
-class TestUserAssignmentBuilder(unittest.TestCase):
+class TestUserRoleAssignmentBuilder(unittest.TestCase):
 
     def setUp(self):
         self.username = 'LOGON'
@@ -134,6 +134,36 @@ class TestUserAssignmentBuilder(unittest.TestCase):
                 {'AGR_NAME': '3',
                  'FROM_DAT': start_date,
                  'TO_DAT': '20991231'
+                }
+            ]
+        })
+
+
+class TestUserProfileAssignmentBuilder(unittest.TestCase):
+
+    def setUp(self):
+        self.username = 'LOGON'
+        self.builder = UserProfileAssignmentBuilder(self.username)
+
+    def test_no_parameters_provided(self):
+        params = self.builder.build_rfc_params()
+        self.assertIsNone(params)
+
+    def test_all_parameters_provided(self):
+        self.builder.add_profiles(['1', '2', '3'])
+
+        params = self.builder.build_rfc_params()
+
+        start_date = today_sap_date()
+        self.maxDiff = None
+        self.assertEqual(params, {
+            'USERNAME': self.username,
+            'PROFILES': [
+                {'BAPIPROF': '1',
+                },
+                {'BAPIPROF': '2',
+                },
+                {'BAPIPROF': '3',
                 }
             ]
         })
