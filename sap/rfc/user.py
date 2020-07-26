@@ -1,5 +1,7 @@
 """User management over RFC"""
 
+import datetime
+
 from typing import Dict, Union, List
 
 from sap.rfc.core import RFCParams
@@ -81,13 +83,13 @@ class UserBuilder:
     def set_first_name(self, first_name: str):
         """Sets user's first name"""
 
-        self._address['FIRSTNAME'] = first_name
+        self._address_data['FIRSTNAME'] = first_name
         return self
 
     def set_last_name(self, last_name: str):
         """Sets user's last name"""
 
-        self._address['LASTNAME'] = last_name
+        self._address_data['LASTNAME'] = last_name
         return self
 
     def set_email_address(self, email_address: str):
@@ -144,7 +146,7 @@ class UserBuilder:
         add_to_dict_if_not_none(params, 'PASSWORD', self._password)
         add_to_dict_if_not_none(params, 'ALIAS', self._alias)
 
-        add_to_dict_if_not_present(self._logondata_data, 'GLTGV', datetime.today().date())
+        add_to_dict_if_not_present(self._logondata_data, 'GLTGV', datetime.date.today().strftime('%Y%m%d'))
         add_to_dict_if_not_present(self._logondata_data, 'GLTGB', '20991231')
 
         add_to_dict_if_not_none(params, 'LOGONDATA', self._logondata)
