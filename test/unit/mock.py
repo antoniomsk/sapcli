@@ -6,6 +6,8 @@ from argparse import ArgumentParser
 import unittest
 from unittest.mock import patch
 
+from test_sap_rfc_bapi import create_bapiret_error
+
 import sap.adt
 import sap.cli.core
 

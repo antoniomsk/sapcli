@@ -5,8 +5,11 @@ import datetime
 import unittest
 from unittest.mock import Mock
 
+from sap.rfc.bapi import BAPIError
 from sap.rfc.user import add_to_dict_if_not_none, add_to_dict_if_not_present, today_sap_date, \
-         UserBuilder, UserRoleAssignmentBuilder, UserProfileAssignmentBuilder
+         UserBuilder, UserRoleAssignmentBuilder, UserProfileAssignmentBuilder, UserManager
+
+from test_sap_rfc_bapi import create_bapiret_error
 
 
 class SAPRFCUserAux(unittest.TestCase):
@@ -167,3 +170,51 @@ class TestUserProfileAssignmentBuilder(unittest.TestCase):
                 }
             ]
         })
+
+
+class TestUserManager(unittest.TestCase):
+
+    def setUp(self):
+        self.bapirettab = []
+        self.response = {'RETURN': self.bapirettab}
+
+        self.connection = Mock()
+        self.connection.call = Mock()
+        self.connection.call.return_value = self.response
+
+        self.username = 'logon'
+        self.manager = UserManager()
+
+    def test_user_builder(self):
+        self.assertIsNotNone(self.manager.user_builder())
+
+    def test_user_role_assignment_builder(self):
+        builder = self.manager.user_role_assignment_builder(self.username)
+        self.assertIsNotNone(builder)
+        self.assertEqual(builder._user, self.username)
+
+    def test_user_profile_assignment_builder(self):
+        builder = self.manager.user_profile_assignment_builder(self.username)
+        self.assertIsNotNone(builder)
+        self.assertEqual(builder._user, self.username)
+
+    def test_create_user_no_error(self):
+        user_builder = self.manager.user_builder()
+        user_builder.set_username(self.username)
+
+        ret = self.manager.create_user(self.connection, user_builder)
+
+        self.assertEqual(ret, self.username)
+
+        self.connection.call.assert_called_once()
+
+    def test_create_user_with_error(self):
+        user_builder = self.manager.user_builder()
+        user_builder.set_username(self.username)
+
+        self.bapirettab.append(create_bapiret_error('Error message'))
+
+        with self.assertRaises(BAPIError) as caught:
+            self.manager.create_user(self.connection, user_builder)
+
+        self.connection.call.assert_called_once()

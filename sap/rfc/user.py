@@ -231,49 +231,46 @@ class UserProfileAssignmentBuilder:
 class UserManager:
     """Proxy to SAP API managing Users"""
 
-    def __init__(self, conn):
-        self._conn = conn
-
-    def user_builder() -> UserBuilder:
+    def user_builder(self) -> UserBuilder:
         """Returns instance of User Parameters builder"""
 
         return UserBuilder()
 
-    def create_user(self, user_builder: UserBuilder) -> UserId:
+    def create_user(self, connection, user_builder: UserBuilder) -> UserId:
         """Creates a new user for the given user data"""
 
         rfc_call_params = user_builder.build_rfc_params()
 
-        resp = conn.call('BAPI_USER_CREATE1', **rfc_call_params)
+        resp = connection.call('BAPI_USER_CREATE1', **rfc_call_params)
 
-        BAPIError.raise_for_error(resp['RETURN'])
+        BAPIError.raise_for_error(resp['RETURN'], resp)
 
         return rfc_call_params['USERNAME']
 
-    def user_role_assignment_builder() -> UserRoleAssignmentBuilder:
+    def user_role_assignment_builder(self, username: str) -> UserRoleAssignmentBuilder:
         """Returns instance of User Role Assignment builder"""
 
-        return UserRoleAssignmentBuilder()
+        return UserRoleAssignmentBuilder(username)
 
-    def assign_roles(self, roles_builder: UserRoleAssignmentBuilder) -> None:
+    def assign_roles(self, connection, roles_builder: UserRoleAssignmentBuilder) -> None:
         """Assigns roles"""
 
         rfc_call_params = roles_builder.build_rfc_params()
 
-        resp = conn.call('BAPI_USER_ACTGROUPS_ASSIGN', **rfc_call_params)
+        resp = connection.call('BAPI_USER_ACTGROUPS_ASSIGN', **rfc_call_params)
 
-        BAPIError.raise_for_error(resp['RETURN'])
+        BAPIError.raise_for_error(resp['RETURN'], resp)
 
-    def user_profile_assignment_builder() -> UserProfileAssignmentBuilder:
+    def user_profile_assignment_builder(self, username: str) -> UserProfileAssignmentBuilder:
         """Returns instance of User Profile Assignment builder"""
 
-        return UserProfileAssignmentBuilder()
+        return UserProfileAssignmentBuilder(username)
 
-    def assign_profiles(self, profiles_builder: UserProfileAssignmentBuilder) -> None:
+    def assign_profiles(self, connection, profiles_builder: UserProfileAssignmentBuilder) -> None:
         """Assigns profiles"""
 
         rfc_call_params = profiles_builder.build_rfc_params()
 
-        resp = conn.call('BAPI_USER_PROFILES_ASSIGN', **rfc_call_params)
+        resp = connection.call('BAPI_USER_PROFILES_ASSIGN', **rfc_call_params)
 
-        BAPIError.raise_for_error(resp['RETURN'])
+        BAPIError.raise_for_error(resp['RETURN'], resp)
