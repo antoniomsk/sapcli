@@ -36,6 +36,14 @@ def add_to_dict_if_not_present(target_dict, target_key, value):
     return True
 
 
+def sap_date_from(the_date):
+    return the_date.strftime('%Y%m%d')
+
+
+def today_sap_date():
+    return sap_date_from(datetime.date.today())
+
+
 class UserBuilder:
     """An utility class for building SAP user parameters"""
 
@@ -146,7 +154,7 @@ class UserBuilder:
         add_to_dict_if_not_none(params, 'PASSWORD', self._password)
         add_to_dict_if_not_none(params, 'ALIAS', self._alias)
 
-        add_to_dict_if_not_present(self._logondata_data, 'GLTGV', datetime.date.today().strftime('%Y%m%d'))
+        add_to_dict_if_not_present(self._logondata_data, 'GLTGV', today_sap_date())
         add_to_dict_if_not_present(self._logondata_data, 'GLTGB', '20991231')
 
         add_to_dict_if_not_none(params, 'LOGONDATA', self._logondata)
@@ -164,7 +172,7 @@ class UserRoleAssignmentBuilder:
     def add_roles(self, role_names: List[str]):
         """Set assigned roles name"""
 
-        self._roles = roles
+        self._roles = role_names
         return self
 
     def build_rfc_params(self) -> RFCParams:
@@ -178,7 +186,7 @@ class UserRoleAssignmentBuilder:
         for role_name in self._roles:
             table_row = {'AGR_NAME': role_name}
 
-            add_to_dict_if_not_present(table_row, 'FROM_DAT', datetime.today().date())
+            add_to_dict_if_not_present(table_row, 'FROM_DAT', today_sap_date())
             add_to_dict_if_not_present(table_row, 'TO_DAT', '20991231')
 
             rfc_table.append(table_row)

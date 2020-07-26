@@ -5,7 +5,8 @@ import datetime
 import unittest
 from unittest.mock import Mock
 
-from sap.rfc.user import add_to_dict_if_not_none, add_to_dict_if_not_present, UserBuilder
+from sap.rfc.user import add_to_dict_if_not_none, add_to_dict_if_not_present, UserBuilder, \
+         UserRoleAssignmentBuilder, today_sap_date
 
 
 class SAPRFCUserAux(unittest.TestCase):
@@ -99,4 +100,40 @@ class TestUserBuilder(unittest.TestCase):
                 'GLTGV': start_date,
                 'GLTGB': end_date
             }
+        })
+
+
+class TestUserAssignmentBuilder(unittest.TestCase):
+
+    def setUp(self):
+        self.username = 'LOGON'
+        self.builder = UserRoleAssignmentBuilder(self.username)
+
+    def test_no_parameters_provided(self):
+        params = self.builder.build_rfc_params()
+        self.assertIsNone(params)
+
+    def test_all_parameters_provided(self):
+        self.builder.add_roles(['1', '2', '3'])
+
+        params = self.builder.build_rfc_params()
+
+        start_date = today_sap_date()
+        self.maxDiff = None
+        self.assertEqual(params, {
+            'USERNAME': self.username,
+            'ACTIVITYGROUPS': [
+                {'AGR_NAME': '1',
+                 'FROM_DAT': start_date,
+                 'TO_DAT': '20991231'
+                },
+                {'AGR_NAME': '2',
+                 'FROM_DAT': start_date,
+                 'TO_DAT': '20991231'
+                },
+                {'AGR_NAME': '3',
+                 'FROM_DAT': start_date,
+                 'TO_DAT': '20991231'
+                }
+            ]
         })
