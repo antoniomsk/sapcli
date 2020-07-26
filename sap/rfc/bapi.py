@@ -9,7 +9,7 @@ from sap.rfc.core import RFCResponse
 class BAPIError(SAPCliError):
     """RFC BAPI error"""
 
-    def __init__(self, message, bapirettab, response):
+    def __init__(self, bapirettab, response):
         super(BAPIError, self).__init__(
             '\n'.join(
                 [' '.join([bapiret['TYPE'], bapiret['MESSAGE']]) for bapiret in bapirettab]))
