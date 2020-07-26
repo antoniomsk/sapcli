@@ -1,6 +1,6 @@
 """User management over RFC"""
 
-from typing import Dict, Union
+from typing import Dict, Union, List
 
 from sap.rfc.core import RFCParams
 from sap.rfc.bapi import BAPIError
@@ -72,49 +72,49 @@ class UserBuilder:
 
         return self._logondata
 
-    def set_username(self, username: str) -> UserBuilder:
+    def set_username(self, username: str):
         """Sets user name for logon"""
 
         self._username = username
         return self
 
-    def set_first_name(self, first_name: str) -> UserBuilder:
+    def set_first_name(self, first_name: str):
         """Sets user's first name"""
 
         self._address['FIRSTNAME'] = first_name
         return self
 
-    def set_last_name(self, last_name: str) -> UserBuilder:
+    def set_last_name(self, last_name: str):
         """Sets user's last name"""
 
         self._address['LASTNAME'] = last_name
         return self
 
-    def set_email_address(self, email_address: str) -> UserBuilder:
+    def set_email_address(self, email_address: str):
         """Sets user's email address"""
 
         self._address['E_MAIL'] = email_address
         return self
 
-    def set_password(self, password: str) -> UserBuilder:
+    def set_password(self, password: str):
         """Sets user's password - works only for the user type Service"""
 
         self._password_data['BAPIPWD'] = password
         return self
 
-    def set_alias(self, alias: str) -> UserBuilder:
+    def set_alias(self, alias: str):
         """Sets user's alias for HTTP authentication"""
 
         self._alias_data['USERALIAS'] = alias
         return self
 
-    def set_type(self, typ: str) -> UserBuilder:
+    def set_type(self, typ: str):
         """Sets user's type"""
 
         self._logondata_data['USTYP'] = typ
         return self
 
-    def set_valid_from(self, start_date: Union[str]) -> UserBuilder:
+    def set_valid_from(self, start_date: Union[str]):
         """Sets user's start validity date"""
 
         if isinstance(start_date, str):
@@ -122,7 +122,9 @@ class UserBuilder:
         else:
             raise ValueError()
 
-    def set_valid_to(self, end_date: Union[str]) -> UserBuilder:
+        return self
+
+    def set_valid_to(self, end_date: Union[str]):
         """Sets user's end validity date"""
 
         if isinstance(end_date, str):
@@ -130,7 +132,9 @@ class UserBuilder:
         else:
             raise ValueError()
 
-    def build_rfc_params(self) -> RFCParams
+        return self
+
+    def build_rfc_params(self) -> RFCParams:
         """Creates RFC parameters"""
 
         params = dict()
@@ -148,17 +152,18 @@ class UserBuilder:
         return params
 
 
-def UserRoleAssignmentBuilder:
+class UserRoleAssignmentBuilder:
     """An utility class for building SAP user roles assignment parameters"""
 
     def __init__(self, user):
         self._user = user
         self._roles = list()
 
-    def add_roles(self, role_names: List[str]) -> UserRoleAssignmentBuilder:
+    def add_roles(self, role_names: List[str]):
         """Set assigned roles name"""
 
         self._roles = roles
+        return self
 
     def build_rfc_params(self) -> RFCParams:
         """Creates RFC parameters"""
@@ -172,27 +177,28 @@ def UserRoleAssignmentBuilder:
             table_row = {'AGR_NAME': role_name}
 
             add_to_dict_if_not_present(table_row, 'FROM_DAT', datetime.today().date())
-            add_to_dict_if_not_present(table_row, 'TO_DAT': '20991231')
+            add_to_dict_if_not_present(table_row, 'TO_DAT', '20991231')
 
             rfc_table.append(table_row)
 
         return {
-            'USERNAME'=self._user,
-            'ACTIVITYGROUPS'=rfc_table
+            'USERNAME': self._user,
+            'ACTIVITYGROUPS': rfc_table
         }
 
 
-def UserProfileAssignmentBuilder:
+class UserProfileAssignmentBuilder:
     """An utility class for building SAP user profiles assignment parameters"""
 
     def __init__(self, user):
         self._user = user
         self._profiles = list()
 
-    def add_profiles(self, profile_names: List[str]) -> UserProfileAssignmentBuilder:
+    def add_profiles(self, profile_names: List[str]):
         """Set assigned profiles name"""
 
         self._profiles = profiles
+        return self
 
     def build_rfc_params(self) -> RFCParams:
         """Creates RFC parameters"""
@@ -207,8 +213,8 @@ def UserProfileAssignmentBuilder:
             rfc_table.append(table_row)
 
         return {
-            'USERNAME'=self._user,
-            'PROFILES'=rfc_table
+            'USERNAME': self._user,
+            'PROFILES': rfc_table
         }
 
 
